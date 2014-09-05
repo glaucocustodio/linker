@@ -1,0 +1,9 @@
+default: &default
+  adapter: sqlite3
+  database: ':memory:'
+
+development:
+  <<: *default
+
+test:
+  <<: *default
