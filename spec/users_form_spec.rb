@@ -152,5 +152,6 @@ describe UsersForm do
 
     it { expect(users_form_existing_user_address.persisted?).to be(true) }
     it { expect(users_form_existing_user_address.street).to eq('') }
+    it { expect(users_form_existing_user_address.district).to eq('') }
   end
 end
