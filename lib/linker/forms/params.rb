@@ -16,7 +16,7 @@ module Linker
 
           if value.is_a?(Hash)
             # belongs_to attrs
-            if map_belongs_to_associations.select{|c| c[:name] == table.singularize}.present?
+            if map_belongs_to_associations.select{|c| c[:name] == table}.present?
               if value['id'].present?
                 _get_main_model.send(table).update_attributes(value)
               else
