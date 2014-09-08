@@ -65,7 +65,7 @@ module Linker
       # Create required methods to use `fields_for`
       def set_fields_for_methods assoc_set, singular = false
         assoc_set.each do |c|
-          method_prefix = singular ? c[:tablelized_klass].singularize : c[:tablelized_klass]
+          method_prefix = singular ? c[:name].singularize : c[:name]
 
           #ap "criando método #{method_prefix}"
           self.class.send(:define_method, method_prefix) do
@@ -90,8 +90,8 @@ module Linker
       def map_associations assoc
         assoc.inject([]) do |t, c| 
           t << {
-            klass:         c.klass.name, 
-            tablelized_klass: c.klass.name.pluralize.underscore,
+            name: c.name.to_s, 
+            klass: c.klass.name,
             # delete_if remove useless attrs
             columns:       filter_columns(c.klass)
           }

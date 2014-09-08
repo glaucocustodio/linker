@@ -8,7 +8,7 @@ module Linker
       def params= params
         # Delete all associated objects if there is nothing in params
         @mapped_hm_assoc.each do |c|
-          _get_main_model.send(c[:tablelized_klass]).destroy_all if !params.key?("#{c[:tablelized_klass]}_attributes")
+          _get_main_model.send(c[:name]).destroy_all if !params.key?("#{c[:name]}_attributes")
         end
 
         params.each do |param, value|
@@ -16,7 +16,7 @@ module Linker
 
           if value.is_a?(Hash)
             # belongs_to attrs
-            if map_belongs_to_associations.select{|c| c[:klass] == table.singularize.camelize}.present?
+            if map_belongs_to_associations.select{|c| c[:name] == table.singularize}.present?
               if value['id'].present?
                 _get_main_model.send(table).update_attributes(value)
               else
@@ -24,23 +24,23 @@ module Linker
               end
 
             # has_one attrs
-            elsif map_has_one_associations.select{|c| c[:klass] == table.camelize}.present?
+            elsif map_has_one_associations.select{|c| c[:name] == table}.present?
               if value['id'].present?
                 _get_main_model.send(table).update_attributes(value)
               else
-                _get_main_model.send("#{table}=", table.camelize.constantize.new(value))
+                _get_main_model.send("build_#{table}", value)
               end
 
             # has_many attrs
             else
               ids = value.map.with_index{|c,i| c.last['id'].present? ? c.last['id'] : nil }.compact
-              _get_main_model.send(table).where(["#{table}.id NOT IN (?)", ids]).destroy_all if ids.present?
+              _get_main_model.send(table).where(["#{_get_main_model.send(table).table.name}.id NOT IN (?)", ids]).destroy_all if ids.present?
 
               value.each do |c|
                 if c.last['id'].present?
                   _get_main_model.send(table).find(c.last['id']).update_attributes(c.last)
                 else
-                  _get_main_model.send(table) << table.singularize.camelize.constantize.new(c.last)
+                  _get_main_model.send(table).send(:build, c.last)
                 end
               end
             end

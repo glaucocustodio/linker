@@ -1,17 +1,21 @@
 class User < ActiveRecord::Base
   belongs_to :company
-  belongs_to :family
+  belongs_to :my_family, class_name: 'Family'
 
   has_one :address, dependent: :destroy
+  has_one :little_pet, class_name: 'Pet'
 
   has_many :dependent_users, dependent: :destroy
-  has_many :tasks, dependent: :destroy
+  has_many :my_tasks, dependent: :destroy, class_name: 'Task'
 
   #has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
   #validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
 end
 
 class Address < ActiveRecord::Base
+end
+
+class Pet < ActiveRecord::Base
 end
 
 class Company < ActiveRecord::Base
@@ -35,7 +39,7 @@ class CreateAllTables < ActiveRecord::Migration
     create_table :users do |t|
       t.string :name
       t.references :company, index: true
-      t.references :family, index: true
+      t.references :my_family, index: true
 
       t.timestamps
     end
@@ -76,6 +80,14 @@ class CreateAllTables < ActiveRecord::Migration
       
       t.timestamps
     end
+
+    create_table :pets do |t|
+      t.string :name
+
+      t.references :user, index: true
+      
+      t.timestamps
+    end
   end
 end
 ActiveRecord::Migration.verbose = false
@@ -83,5 +95,6 @@ CreateAllTables.up
 
 # seed
 bar = User.create(name: 'Bar')
-bar.tasks << Task.create(name: 'Task 1')
+bar.my_tasks << Task.create(name: 'Task 1')
+bar.little_pet = Pet.create(name: 'Stuart')
 bar.dependent_users << DependentUser.create(name: 'John', date_birth: Date.new(1990, 2, 1))
