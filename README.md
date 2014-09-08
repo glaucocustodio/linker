@@ -54,6 +54,7 @@ class UsersController < ApplicationController
   end
 
   def create
+    @user_form = UserForm.new(User.new)
     @user_form.params = users_form_params
 
     if @user_form.save
