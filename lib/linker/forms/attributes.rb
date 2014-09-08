@@ -65,12 +65,10 @@ module Linker
       # Create required methods to use `fields_for`
       def set_fields_for_methods assoc_set, singular = false
         assoc_set.each do |c|
-          method_prefix = singular ? c[:name].singularize : c[:name]
-
-          #ap "criando método #{method_prefix}"
-          self.class.send(:define_method, method_prefix) do
+          #ap "criando método #{c[:name]}"
+          self.class.send(:define_method, c[:name]) do
             assocs = instance_variable_get("@#{get_main_model.to_s.underscore}")
-            .send(method_prefix)
+            .send(c[:name])
 
             neww = singular ? c[:klass].constantize.new : [c[:klass].constantize.new] * 2
 
@@ -81,8 +79,8 @@ module Linker
             end
           end
 
-          #ap "criando método #{method_prefix}_attributes="
-          self.class.send(:define_method, "#{method_prefix}_attributes=") do |attributes|
+          #ap "criando método #{c[:name]}_attributes="
+          self.class.send(:define_method, "#{c[:name]}_attributes=") do |attributes|
           end
         end
       end
