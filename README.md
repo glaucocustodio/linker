@@ -37,20 +37,20 @@ class User < ActiveRecord::Base
 end
 ```
 
-Create a form class, include Linker and set main model:
+Create a form class through `rails g form whatever` or manually (it should include Linker and have main model set like below).
 ```ruby
-class UsersForm
+class UserForm
   include Linker
   
   main_model User # or :user or 'User'
 end
 ```
 
-Now you can create a new form for existing user `UsersForm.new(User.find params[:id])` or to a new one `UsersForm.new(User.new)`:
+Now you can create a new form for existing user `UserForm.new(User.find params[:id])` or to a new one `UserForm.new(User.new)`:
 ```ruby
 class UsersController < ApplicationController
   def new
-    @user_form = UsersForm.new(User.new)
+    @user_form = UserForm.new(User.new)
   end
 
   def create
