@@ -6,11 +6,6 @@ module Linker
 
     included do
       def params= params
-        # Delete all associated objects if there is nothing in params
-        @mapped_hm_assoc.each do |c|
-          _get_main_model.send(c[:name]).destroy_all if !params.key?("#{c[:name]}_attributes")
-        end
-
         params.each do |param, value|
           if value.is_a?(Hash)
             table = param.gsub(%r{_attributes$}, '')
@@ -32,14 +27,19 @@ module Linker
 
             # has_many attrs
             else
-              ids = value.map.with_index{|c,i| c.last['id'].present? ? c.last['id'] : nil }.compact
-              _get_main_model.send(table).where(["#{_get_main_model.send(table).table.name}.id NOT IN (?)", ids]).destroy_all if ids.present?
+              ids_to_remove = value.map{|c| c.last['id'] if c.last['id'].present? && c.last.key?('_remove') && c.last['_remove'] == '1' }.compact
+
+              if ids_to_remove.present?
+                r = search_has_many(table)
+                r[:klass].constantize.send(:where, ["#{r[:klass].constantize.table_name}.id IN (?)", ids_to_remove]).destroy_all
+                value.delete_if{|i, c| ids_to_remove.include?(c['id']) }
+              end
 
               value.each do |c|
                 if c.last['id'].present?
-                  _get_main_model.send(table).find(c.last['id']).update_attributes(c.last)
+                  _get_main_model.send(table).find(c.last['id']).update_attributes(c.last.except('_remove'))
                 else
-                  _get_main_model.send(table).send(:build, c.last)
+                  _get_main_model.send(table).send(:build, c.last.except('_remove'))
                 end
               end
             end
@@ -73,7 +73,12 @@ module Linker
       end
 
       def search_has_one name
-        s = map_has_one_associations.detect{|c| c[:name] == name}
+        s = @mapped_ho_assoc.detect{|c| c[:name] == name}
+        s.present? && s
+      end
+
+      def search_has_many name
+        s = @mapped_hm_assoc.detect{|c| c[:name] == name}
         s.present? && s
       end
   end

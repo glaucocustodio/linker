@@ -26,11 +26,13 @@ describe UsersForm do
 
   subject(:dependent_users_sample) { users_form.dependent_users.sample }
   it { expect(dependent_users_sample).to be_an(DependentUser) }
+  it { expect(dependent_users_sample).to respond_to(:_remove) }
 
   it { expect(users_form).to respond_to(:my_tasks, :my_tasks_attributes=) }
   it { expect(users_form.my_tasks).to be_an(Array) }
   subject(:tasks_sample) { users_form.my_tasks.sample }
-  it { expect(tasks_sample).to be_an(Task) }
+  it { expect(tasks_sample).to be_a(Task) }
+  it { expect(tasks_sample).to respond_to(:_remove) }
 
   it { expect(users_form).to respond_to(:address, :address_attributes=) }
   subject(:address) { users_form.address }
@@ -142,7 +144,7 @@ describe UsersForm do
         'profile_list'               => '',
         'my_phone_list'              => '',
         'little_pet_attributes'      => {'id' => '1', 'name' => 'Stuart 2'},
-        #'tasks_attributes'           => {'0' => {'id' => '', 'name' => 'T1'}, '1' => {'id' => '', 'name' => 'T2'}},
+        'my_tasks_attributes'        => {'0' => {'id' => '1', 'name' => 'Task 1', '_remove' => '1'}, '1' => {'id' => '', 'name' => 'Task 3'}},
         'dependent_users_attributes' => {'0' => {'id' => '1', 'name' => 'John 2', 'date_birth' => Date.new(1990, 2, 2)}, '1' => {'id' => '', 'name' => '', 'date_birth' => ''}}
       }
       users_form_existing_user.save
@@ -156,15 +158,16 @@ describe UsersForm do
     subject(:users_form_existing_user_pet) { users_form_existing_user.little_pet }
     subject(:users_form_existing_user_family) { users_form_existing_user.my_family }
     subject(:users_form_existing_user_user_tasks) { users_form_existing_user.user.my_tasks }
-    subject(:users_form_existing_user_tasks_sample) { users_form_existing_user.my_tasks.sample }
+    subject(:users_form_existing_user_tasks) { users_form_existing_user.my_tasks }
 
     subject(:users_form_existing_user_to_model) { users_form_existing_user.to_model }
     it { expect(users_form_existing_user_to_model.class).to eq(User) }
     it { expect(users_form_existing_user_to_model.persisted?).to eq(true) }
 
-    it { expect(users_form_existing_user_user_tasks.empty?).to be(true) }
-    it { expect(users_form_existing_user_tasks_sample.persisted?).to be(false) }
-    it { expect(users_form_existing_user_tasks_sample).to be_a(Task) }
+    it { expect(users_form_existing_user_tasks.first).to be_a(Task) }
+    it { expect(users_form_existing_user_tasks.first.persisted?).to eq(true) }
+    it { expect(users_form_existing_user_tasks.first.name).to eq('Task 3') }
+    it { expect(Task.find_by_id(1)).to eq(nil) }
 
     it { expect(users_form_existing_user_dependent_users.sample.persisted?).to eq(true) }
     it { expect(users_form_existing_user_dependent_users.first.id).to eq(1) }

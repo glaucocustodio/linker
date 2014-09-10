@@ -19,6 +19,7 @@ module Linker
       set_fields_for_methods(map_belongs_to_associations, true)
       set_fields_for_methods(map_has_one_associations, true)
       set_non_fields_for_methods(map_has_one_associations)
+      set_remove_accessor(map_has_many_associations)
     end
 
     def set_reader_for_main_model
@@ -94,6 +95,13 @@ module Linker
                     .send(c[:name])
             assoc.present? && assoc.id || nil
           end
+        end
+      end
+
+      def set_remove_accessor assoc_set
+        assoc_set.each do |c|
+          #ap "Criando attr_accessor :_remove para #{c[:klass]}"
+          c[:klass].constantize.class_eval{ attr_accessor :_remove }
         end
       end
 
