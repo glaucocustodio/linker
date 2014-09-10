@@ -36,6 +36,10 @@ describe UsersForm do
   subject(:address) { users_form.address }
   it { expect(address).to be_an(Address) }
 
+  it { expect(users_form).to respond_to(:profile_list) }
+  subject(:profile_list) { users_form.profile_list }
+  it { expect(profile_list).to eq(nil) }
+
   it { expect(users_form).to respond_to(:little_pet, :little_pet_attributes=) }
   subject(:pet) { users_form.little_pet }
   it { expect(pet).to be_an(Pet) }
@@ -64,6 +68,8 @@ describe UsersForm do
 
     it { expect(address.persisted?).to eq(false) }  
 
+    it { expect(profile_list).to eq(nil) }
+
     it { expect(pet.persisted?).to eq(false) }  
 
     it { expect(company.persisted?).to eq(false) }  
@@ -78,6 +84,7 @@ describe UsersForm do
         'company_attributes'         => {'id' => '', 'name' => 'My Company', 'website' => 'mycompany.com'},
         'my_family_attributes'       => {'id' => '', 'last_name' => 'Milan'},
         'address_attributes'         => {'id' => '', 'street' => '', 'district' => ''},
+        'profile_list'               => '1',
         'little_pet_attributes'      => {'id' => '', 'name' => 'Stuart'},
         'my_tasks_attributes'        => {'0' => {'id' => '', 'name' => 'T1'}, '1' => {'id' => '', 'name' => 'T2'}},
         'dependent_users_attributes' => {'0' => {'id' => '', 'name' => '', 'date_birth' => ''}, '1' => {'id' => '', 'name' => '', 'date_birth' => ''}}
@@ -98,6 +105,8 @@ describe UsersForm do
     it { expect(dependent_users_sample.persisted?).to eq(true) }
     it { expect(dependent_users_sample.name).to eq('') }
     
+    it { expect(profile_list).to eq(1) }
+
     it { expect(pet).to be_a(Pet)}
     it { expect(pet.persisted?).to be(true)}
     it { expect(pet.updated_at).to eq(pet.created_at)}
@@ -122,6 +131,7 @@ describe UsersForm do
         'company_attributes'         => {'id' => '', 'name' => 'My Company', 'website' => 'mycompany.com'},
         'my_family_attributes'       => {'id' => '', 'last_name' => 'Milan'},
         'address_attributes'         => {'id' => '', 'street' => '', 'district' => ''},
+        'profile_list'               => '',
         'little_pet_attributes'      => {'id' => '1', 'name' => 'Stuart 2'},
         #'tasks_attributes'           => {'0' => {'id' => '', 'name' => 'T1'}, '1' => {'id' => '', 'name' => 'T2'}},
         'dependent_users_attributes' => {'0' => {'id' => '1', 'name' => 'John 2', 'date_birth' => Date.new(1990, 2, 2)}, '1' => {'id' => '', 'name' => '', 'date_birth' => ''}}
@@ -167,6 +177,8 @@ describe UsersForm do
     it { expect(users_form_existing_user_family.persisted?).to be(true) }
     it { expect(users_form_existing_user_family.last_name).to eq('Milan') }
     
+    it { expect(users_form_existing_user.profile_list).to be(nil) }
+
     it { expect(users_form_existing_user_pet).to be_a(Pet) }
     it { expect(users_form_existing_user_pet.persisted?).to be(true) }
     it { expect(users_form_existing_user_pet.updated_at).not_to eq(users_form_existing_user_pet.created_at)}

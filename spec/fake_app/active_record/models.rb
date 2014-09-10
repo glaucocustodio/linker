@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
   belongs_to :my_family, class_name: 'Family'
 
   has_one :address, dependent: :destroy
+  has_one :profile
   has_one :little_pet, class_name: 'Pet'
 
   has_many :dependent_users, dependent: :destroy
@@ -31,6 +32,9 @@ end
 
 class Task < ActiveRecord::Base
   attr_accessor :error_message
+end
+
+class Profile < ActiveRecord::Base
 end
 
 #migrations
@@ -88,13 +92,26 @@ class CreateAllTables < ActiveRecord::Migration
       
       t.timestamps
     end
+
+    create_table :profiles do |t|
+      t.string :profile_type
+      t.references :user, index: true
+
+      t.timestamps
+    end
+
   end
 end
 ActiveRecord::Migration.verbose = false
 CreateAllTables.up
 
+Profile.create(profile_type: 'A')
+Profile.create(profile_type: 'B')
+Profile.create(profile_type: 'C')
+
 # seed
 bar = User.create(name: 'Bar')
 bar.my_tasks << Task.create(name: 'Task 1')
 bar.little_pet = Pet.create(name: 'Stuart')
+bar.profile = Profile.first
 bar.dependent_users << DependentUser.create(name: 'John', date_birth: Date.new(1990, 2, 1))

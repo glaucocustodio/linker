@@ -18,6 +18,7 @@ module Linker
       set_fields_for_methods(map_has_many_associations)
       set_fields_for_methods(map_belongs_to_associations, true)
       set_fields_for_methods(map_has_one_associations, true)
+      set_non_fields_for_methods(map_has_one_associations)
     end
 
     def set_reader_for_main_model
@@ -81,6 +82,17 @@ module Linker
 
           #ap "criando método #{c[:name]}_attributes="
           self.class.send(:define_method, "#{c[:name]}_attributes=") do |attributes|
+          end
+        end
+      end
+
+      def set_non_fields_for_methods assoc_set
+        assoc_set.each do |c|
+          #ap "criando método #{c[:name]}_list"
+          self.class.send(:define_method, "#{c[:name]}_list") do
+            assoc = instance_variable_get("@#{get_main_model.to_s.underscore}")
+                    .send(c[:name])
+            assoc.present? && assoc.id || nil
           end
         end
       end

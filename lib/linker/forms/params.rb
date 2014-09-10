@@ -12,9 +12,8 @@ module Linker
         end
 
         params.each do |param, value|
-          table = param.gsub(%r{_attributes$}, '')
-
           if value.is_a?(Hash)
+            table = param.gsub(%r{_attributes$}, '')
             # belongs_to attrs
             if map_belongs_to_associations.select{|c| c[:name] == table}.present?
               if value['id'].present?
@@ -24,7 +23,7 @@ module Linker
               end
 
             # has_one attrs
-            elsif map_has_one_associations.select{|c| c[:name] == table}.present?
+            elsif search_has_one(table)
               if value['id'].present?
                 _get_main_model.send(table).update_attributes(value)
               else
@@ -43,6 +42,12 @@ module Linker
                   _get_main_model.send(table).send(:build, c.last)
                 end
               end
+            end
+          elsif param.match(/_list$/)
+            assoc = param.gsub(/_list$/, '')
+            if search_has_one(assoc)
+              final = value.present? ? assoc.camelize.constantize.send(:find, value) : nil
+              _get_main_model.send("#{assoc}=", final)
             end
           else
             self.send("#{param}=", value)
@@ -65,6 +70,10 @@ module Linker
     private
       def _get_main_model
         main_model ||= self.send(self.class._main_model.underscore)
+      end
+
+      def search_has_one name
+        map_has_one_associations.select{|c| c[:name] == name}.present?
       end
   end
 end

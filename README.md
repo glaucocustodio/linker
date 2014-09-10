@@ -31,6 +31,7 @@ class User < ActiveRecord::Base
   belongs_to :family
 
   has_one :address, dependent: :destroy
+  has_one :profile
   
   has_many :dependent_users, dependent: :destroy
   has_many :tasks, dependent: :destroy
@@ -68,12 +69,12 @@ end
 
 By default, `save` method will perform validations, you can disable them by passing `validate: false` as parameter.
 
-Finally, you can use `fields_for` in order to display associated fields.
+Finally, you can use `fields_for` in order to create/edit associated fields and the suffix `_list` (like `profile_list` below) to choose an existing associated record.
 
 ```erb
 <%= form_for @user_form do |f| %>
   <%= f.text_field :name %>
-
+  
   <%= f.fields_for :tasks do |ta| %>
     <%= ta.hidden_field :id %>
     <%= ta.text_field :name %>
@@ -82,6 +83,9 @@ Finally, you can use `fields_for` in order to display associated fields.
     <%= co.hidden_field :id %>
     <%= co.text_field :name %>
     <%= co.text_field :website %>
+
+  <%= f.select :profile_list, Profile.all.map{|c| [c.profile_type, c.id]}, include_blank: true %>
+
 <% end %>
 ```
 
