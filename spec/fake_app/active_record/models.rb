@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
 
   has_one :address, dependent: :destroy
   has_one :profile
+  has_one :my_phone, class_name: 'Phone'
   has_one :little_pet, class_name: 'Pet'
 
   has_many :dependent_users, dependent: :destroy
@@ -35,6 +36,9 @@ class Task < ActiveRecord::Base
 end
 
 class Profile < ActiveRecord::Base
+end
+
+class Phone < ActiveRecord::Base
 end
 
 #migrations
@@ -100,6 +104,13 @@ class CreateAllTables < ActiveRecord::Migration
       t.timestamps
     end
 
+    create_table :phones do |t|
+      t.string :phone_number
+      t.references :user, index: true
+
+      t.timestamps
+    end
+
   end
 end
 ActiveRecord::Migration.verbose = false
@@ -108,6 +119,10 @@ CreateAllTables.up
 Profile.create(profile_type: 'A')
 Profile.create(profile_type: 'B')
 Profile.create(profile_type: 'C')
+
+Phone.create(phone_number: 'ZA')
+Phone.create(phone_number: 'ZB')
+Phone.create(phone_number: 'ZC')
 
 # seed
 bar = User.create(name: 'Bar')

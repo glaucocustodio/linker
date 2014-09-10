@@ -45,8 +45,8 @@ module Linker
             end
           elsif param.match(/_list$/)
             assoc = param.gsub(/_list$/, '')
-            if search_has_one(assoc)
-              final = value.present? ? assoc.camelize.constantize.send(:find, value) : nil
+            if r = search_has_one(assoc)
+              final = value.present? ? r[:klass].constantize.send(:find, value) : nil
               _get_main_model.send("#{assoc}=", final)
             end
           else
@@ -73,7 +73,8 @@ module Linker
       end
 
       def search_has_one name
-        map_has_one_associations.select{|c| c[:name] == name}.present?
+        s = map_has_one_associations.detect{|c| c[:name] == name}
+        s.present? && s
       end
   end
 end
