@@ -18,7 +18,7 @@ module Linker
   included do
     # allow use form instance variable in form_for. Ie: form_for(@user_form)
     def to_model
-      instance_variable_get("@#{self.class._main_model.downcase}")
+      instance_variable_get("@#{self.class._main_model.underscore}")
     end
   end
 end
