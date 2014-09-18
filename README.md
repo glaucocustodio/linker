@@ -44,6 +44,10 @@ class UserForm
   include Linker
   
   main_model User # or :user or 'User'
+
+  # Use relationship's name followed by "__" plus attribute's name 
+  # to validate has_one and belongs_to associations
+  validates :name, :address__street, :company__name, presence: true
 end
 ```
 
