@@ -32,10 +32,12 @@ module Linker
       # Delegate fields for main model
       filter_columns(@main_model).each{|c| delegate_attr(c, @main_model.to_s.underscore) }
 
-      map_has_one_associations.each do |c|
-        c[:columns].each do |cc|
-          #ap "delegando #{cc} e #{cc}= para #{c[:name]}__#{cc}"
-          self.class.__send__(:delegate, cc, "#{cc}=", to: c[:name].underscore.to_sym, prefix: "#{c[:name]}_")
+      [map_has_one_associations, map_belongs_to_associations].each do |rgroup|
+        rgroup.each do |c|
+          c[:columns].each do |cc|
+            #ap "delegando #{cc} e #{cc}= para #{c[:name]}__#{cc}"
+            self.class.__send__(:delegate, cc, "#{cc}=", to: c[:name].underscore.to_sym, prefix: "#{c[:name]}_")
+          end
         end
       end
     end

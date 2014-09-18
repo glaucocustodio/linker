@@ -61,10 +61,16 @@ describe UsersForm do
   it { expect(pet).to be_an(Pet) }
 
   it { expect(users_form).to respond_to(:company, :company_attributes=) }
+  it { expect(users_form).to respond_to(:company__name, :company__name=) }
+  it { expect(users_form).to respond_to(:company__website, :company__website=) }
+  it { expect(users_form.company__name).to eq(nil) }
+  it { expect(users_form.company__website).to eq(nil) }
   subject(:company) { users_form.company }
   it { expect(company).to be_an(Company) }
 
   it { expect(users_form).to respond_to(:my_family, :my_family_attributes=) }
+  it { expect(users_form).to respond_to(:my_family__last_name, :my_family__last_name=) }
+  it { expect(users_form.my_family__last_name).to eq(nil) }
   subject(:family) { users_form.my_family }
   it { expect(family).to be_an(Family) }
 
