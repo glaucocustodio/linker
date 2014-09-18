@@ -35,6 +35,12 @@ describe UsersForm do
   it { expect(tasks_sample).to respond_to(:_remove) }
 
   it { expect(users_form).to respond_to(:address, :address_attributes=) }
+  it { expect(users_form).to respond_to(:address__street, :address__street=) }
+  it { expect(users_form).to respond_to(:address__district, :address__district=) }
+  it { expect(users_form).to respond_to(:address__user_id, :address__user_id=) }
+  it { expect(users_form.address__street).to eq(nil) }
+  it { expect(users_form.address__district).to eq(nil) }
+  it { expect(users_form.address__user_id).to eq(nil) }
   subject(:address) { users_form.address }
   it { expect(address).to be_an(Address) }
 
@@ -47,6 +53,10 @@ describe UsersForm do
   it { expect(my_phone_list).to eq(nil) }
 
   it { expect(users_form).to respond_to(:little_pet, :little_pet_attributes=) }
+  it { expect(users_form).to respond_to(:little_pet__name, :little_pet__name=) }
+  it { expect(users_form).to respond_to(:little_pet__user_id, :little_pet__user_id=) }
+  it { expect(users_form.little_pet__name).to eq(nil) }
+  it { expect(users_form.little_pet__user_id).to eq(nil) }
   subject(:pet) { users_form.little_pet }
   it { expect(pet).to be_an(Pet) }
 
