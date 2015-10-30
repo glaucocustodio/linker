@@ -41,6 +41,9 @@ end
 class Phone < ActiveRecord::Base
 end
 
+class Car < ActiveRecord::Base
+end
+
 #migrations
 class CreateAllTables < ActiveRecord::Migration
   def self.up
@@ -107,6 +110,12 @@ class CreateAllTables < ActiveRecord::Migration
     create_table :phones do |t|
       t.string :phone_number
       t.references :user, index: true
+
+      t.timestamps
+    end
+
+    create_table :cars do |t|
+      t.string :name
 
       t.timestamps
     end

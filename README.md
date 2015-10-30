@@ -103,6 +103,39 @@ It will also create `params=` and `save` methods responsible to set new objects 
 
 You can check out a demo project using Linker gem [here](https://github.com/glaucocustodio/linker_demo). [Click here](http://linker-demo.herokuapp.com/) to see it live.
 
+## Callbacks
+
+There are some callbacks you can override to keep your controllers DRY:
+
+* `before_set_params(params)`: run before `params=` method. Can be used to change params inside the form class, like string formatting.
+* `before_save`: run before save method.
+* `after_save`: run after save method. You can enqueue some background job here for ie.
+
+Example:
+
+```ruby
+class CarsForm
+  include Linker
+  attr_accessor :before_save_checked
+
+  main_model :car
+
+  validates :name, presence: true
+
+  def before_set_params params
+    params['name'] = "#{params['name']} 2000"
+  end
+
+  def before_save
+    @before_save_checked = true
+  end
+
+  def after_save
+    HardWorker.perform_async('bob', 5)
+  end
+end
+```
+
 ## Contributing
 
 1. Fork it

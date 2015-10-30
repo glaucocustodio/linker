@@ -6,6 +6,7 @@ module Linker
 
     included do
       def params= params
+        before_set_params(params)
         params.each do |param, value|
           if value.is_a?(Hash)
             table = param.gsub(%r{_attributes$}, '')
@@ -55,14 +56,33 @@ module Linker
         end
       end
 
+      # Saves main model with its associated records, with or without validation
+      # (defaults to `:true`, with validation)
+      #
+      # @param validate [boolean] a boolean declaring if the form class must be validated.
+      # @return [boolean] a boolean representing if the form class was validated (or no, if `validate` is `false`) and
+      # saved successfully
       def save validate: true
         main_model = _get_main_model
+        before_save
 
         if validate
-          self.valid? && main_model.save
+          r = (self.valid? && main_model.save)
+          after_save
         else
-          main_model.save
+          r = main_model.save
+          after_save
         end
+        r
+      end
+
+      def before_set_params params
+      end
+
+      def before_save
+      end
+
+      def after_save
       end
 
     end
