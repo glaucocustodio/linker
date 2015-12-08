@@ -3,7 +3,11 @@ require 'spec_helper'
 describe CarsForm do
   let(:cars_form) { CarsForm.new(Car.new) }
 
-  context 'before_set_params' do
+  context 'after_init callback' do
+    it { expect(cars_form.name).to eq('default car name') }
+  end
+
+  context 'callbacks' do
     before do
       cars_form.params = {
         'name' => "Uno"

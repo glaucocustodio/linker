@@ -51,11 +51,11 @@ class UserForm
 end
 ```
 
-Now you can create a new form for existing user `UserForm.new(User.find params[:id])` or to a new one `UserForm.new(User.new)`:
+Now you can create a new form for existing user `UserForm.new(User.find params[:id])` or to a new one `UserForm.new`:
 ```ruby
 class UsersController < ApplicationController
   def new
-    @user_form = UserForm.new(User.new)
+    @user_form = UserForm.new # same as UserForm.new(User.new)
   end
 
   def create
@@ -67,6 +67,10 @@ class UsersController < ApplicationController
     else
       render :new
     end
+  end
+
+  def edit
+    @user_form = UserForm.new(User.find(params[:id])) # you need to load the record being edited
   end
 end
 ```
@@ -107,9 +111,10 @@ You can check out a demo project using Linker gem [here](https://github.com/glau
 
 There are some callbacks you can override to keep your controllers DRY:
 
-* `before_set_params(params)`: run before `params=` method. Can be used to change params inside the form class, like string formatting.
-* `before_save`: run before save method.
-* `after_save`: run after save method. You can enqueue some background job here for ie.
+* `after_init`: runs after `initialize` method of form class. Can be used to set default field values or to prepare data to form.
+* `before_set_params(params)`: runs before `params=` method. Can be used to change params inside the form class, like string formatting.
+* `before_save`: runs before save method.
+* `after_save`: runs after save method. You can enqueue some background job here for instance.
 
 Example:
 

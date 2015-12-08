@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe UsersForm do
-  let(:users_form) { UsersForm.new(User.new) }
+  let(:users_form) { UsersForm.new }
   let(:users_form_existing_user) { UsersForm.new(User.find(1)) }
 
   it { expect(UsersForm._main_model).to eq('User') }

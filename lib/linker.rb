@@ -8,11 +8,15 @@ module Linker
   include Linker::Attributes
   include Linker::Params
 
-  def initialize main_model_instance
+  def initialize main_model_instance = self.class._main_model.constantize.send(:new)
     # Creating instance variable for main model
     instance_variable_set("@#{main_model_instance.class.name.underscore}", main_model_instance)
 
     prepare_attrs
+    after_init
+  end
+
+  def after_init
   end
 
   included do
