@@ -113,7 +113,7 @@ There are some callbacks you can override to keep your controllers DRY:
 
 * `after_init`: runs after `initialize` method of form class. Can be used to set default field values or to prepare data to form.
 * `before_set_params(params)`: runs before `params=` method. Can be used to change params inside the form class, like string formatting.
-* `before_save`: runs before save method.
+* `before_save`: runs before save method, except if some validation has failed.
 * `after_save`: runs after save method. You can enqueue some background job here for instance.
 
 Example:

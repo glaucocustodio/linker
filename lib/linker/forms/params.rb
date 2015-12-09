@@ -54,6 +54,7 @@ module Linker
             self.send("#{param}=", value)
           end
         end
+
       end
 
       # Saves main model with its associated records, with or without validation
@@ -64,16 +65,21 @@ module Linker
       # saved successfully
       def save validate: true
         main_model = _get_main_model
-        before_save
-
+       
+        valid = true
         if validate
-          r = (self.valid? && main_model.save)
-          after_save
+          valid = self.valid?
+          if valid
+            before_save
+            save = main_model.save
+            after_save
+          end
         else
-          r = main_model.save
+          before_save
+          save = main_model.save
           after_save
         end
-        r
+        valid && save
       end
 
       def before_set_params params
