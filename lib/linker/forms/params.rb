@@ -5,13 +5,13 @@ module Linker
     extend ActiveSupport::Concern
 
     included do
-      def params= params
+      def params=(params)
         before_set_params(params)
         params.each do |param, value|
           if value.is_a?(Hash)
             table = param.gsub(%r{_attributes$}, '')
             # belongs_to attrs
-            if map_belongs_to_associations.select{|c| c[:name] == table}.present?
+            if map_belongs_to_associations.select { |c| c[:name] == table }.present?
               if value['id'].present?
                 _get_main_model.send(table).update_attributes(value)
               else
@@ -28,12 +28,12 @@ module Linker
 
             # has_many attrs
             else
-              ids_to_remove = value.map{|c| c.last['id'] if c.last['id'].present? && c.last.key?('_remove') && c.last['_remove'] == '1' }.compact
+              ids_to_remove = value.map { |c| c.last['id'] if c.last['id'].present? && c.last.key?('_remove') && c.last['_remove'] == '1' }.compact
 
               if ids_to_remove.present?
                 r = search_has_many(table)
                 r[:klass].constantize.send(:where, ["#{r[:klass].constantize.table_name}.id IN (?)", ids_to_remove]).destroy_all
-                value.delete_if{|i, c| ids_to_remove.include?(c['id']) }
+                value.delete_if { |i, c| ids_to_remove.include?(c['id']) }
               end
 
               value.each do |c|
@@ -63,26 +63,28 @@ module Linker
       # @param validate [boolean] a boolean declaring if the form class must be validated.
       # @return [boolean] a boolean representing if the form class was validated (or no, if `validate` is `false`) and
       # saved successfully
-      def save validate: true
-        main_model = _get_main_model
-       
-        valid = true
-        if validate
-          valid = self.valid?
-          if valid
+      def save(validate: true)
+        ActiveRecord::Base.transaction do
+          main_model = _get_main_model
+
+          valid = true
+          if validate
+            valid = self.valid?
+            if valid
+              before_save
+              save = main_model.save
+              after_save
+            end
+          else
             before_save
             save = main_model.save
             after_save
           end
-        else
-          before_save
-          save = main_model.save
-          after_save
+          valid && save
         end
-        valid && save
       end
 
-      def before_set_params params
+      def before_set_params(params)
       end
 
       def before_save
@@ -90,22 +92,22 @@ module Linker
 
       def after_save
       end
-
     end
 
     private
-      def _get_main_model
-        main_model ||= self.send(self.class._main_model.underscore)
-      end
 
-      def search_has_one name
-        s = @mapped_ho_assoc.detect{|c| c[:name] == name}
-        s.present? && s
-      end
+    def _get_main_model
+      main_model ||= self.send(self.class._main_model.underscore)
+    end
 
-      def search_has_many name
-        s = @mapped_hm_assoc.detect{|c| c[:name] == name}
-        s.present? && s
-      end
+    def search_has_one(name)
+      s = @mapped_ho_assoc.detect { |c| c[:name] == name }
+      s.present? && s
+    end
+
+    def search_has_many(name)
+      s = @mapped_hm_assoc.detect { |c| c[:name] == name }
+      s.present? && s
+    end
   end
 end

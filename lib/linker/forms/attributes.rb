@@ -23,19 +23,20 @@ module Linker
     end
 
     def set_reader_for_main_model
-      #ap "criando reader for main model #{@main_model.to_s.underscore}"
       # Create attr reader for main model
       self.class.__send__(:attr_reader, @main_model.to_s.underscore)
-    end   
+    end
 
     def set_delegations
       # Delegate fields for main model
-      filter_columns(@main_model).each{|c| delegate_attr(c, @main_model.to_s.underscore) }
+      filter_columns(@main_model).each do |c|
+        delegate_attr(c, @main_model.to_s.underscore)
+      end
 
       [map_has_one_associations, map_belongs_to_associations].each do |rgroup|
         rgroup.each do |c|
           c[:columns].each do |cc|
-            #ap "delegando #{cc} e #{cc}= para #{c[:name]}__#{cc}"
+            # ap "delegating #{cc} and #{cc}= for #{c[:name]}__#{cc}"
             self.class.__send__(:delegate, cc, "#{cc}=", to: c[:name].underscore.to_sym, prefix: "#{c[:name]}_")
           end
         end
@@ -43,104 +44,105 @@ module Linker
     end
 
     private
-      def get_has_many_associations
-        @hm_assoc ||= @main_model.reflect_on_all_associations(:has_many)
-      end
 
-      def get_has_one_associations
-        @ho_assoc ||= @main_model.reflect_on_all_associations(:has_one)
-      end
+    def get_has_many_associations
+      @hm_assoc ||= @main_model.reflect_on_all_associations(:has_many)
+    end
 
-      def get_belongs_to_associations
-        @bt_assoc ||= @main_model.reflect_on_all_associations(:belongs_to)
-      end
+    def get_has_one_associations
+      @ho_assoc ||= @main_model.reflect_on_all_associations(:has_one)
+    end
 
-      def filter_columns model
-        f = model.columns.map(&:name)
-                         .delete_if{|cn| USELESS_COLUMNS_REGEX.match(cn) }
-        # Get Paperclip attachments
-        begin
-          f = Paperclip::AttachmentRegistry.names_for(model).inject(f) do |t, c|
-            t << c.to_s
-          end
-        rescue
+    def get_belongs_to_associations
+      @bt_assoc ||= @main_model.reflect_on_all_associations(:belongs_to)
+    end
+
+    def filter_columns(model)
+      f = model.columns.map(&:name)
+                       .delete_if{ |cn| USELESS_COLUMNS_REGEX.match(cn) }
+      # Get Paperclip attachments
+      begin
+        f = Paperclip::AttachmentRegistry.names_for(model).inject(f) do |t, c|
+          t << c.to_s
         end
-        f
+      rescue
       end
+      f
+    end
 
-      def delegate_attr att, class_to
-        #ap "delegando #{att} e #{att}= para #{class_to.underscore.pluralize.to_sym}"
-        self.class.__send__(:delegate, att, "#{att}=", to: class_to.underscore.to_sym)
-      end
+    def delegate_attr(att, class_to)
+      # ap "delegating #{att} and #{att}= for #{class_to.underscore.pluralize.to_sym}"
+      self.class.__send__(:delegate, att, "#{att}=", to: class_to.underscore.to_sym)
+    end
 
-      # Create required methods to use `fields_for`
-      def set_fields_for_methods assoc_set, singular = false
-        assoc_set.each do |c|
-          #ap "criando método #{c[:name]}"
-          self.class.send(:define_method, c[:name]) do
-            assocs = instance_variable_get("@#{get_main_model.to_s.underscore}")
-            .send(c[:name])
+    # Create required methods to use `fields_for`
+    def set_fields_for_methods(assoc_set, singular = false)
+      assoc_set.each do |c|
+        # ap "creating method #{c[:name]}"
+        self.class.send(:define_method, c[:name]) do
+          assocs = instance_variable_get("@#{get_main_model.to_s.underscore}")
+          .send(c[:name])
 
-            neww = singular ? c[:klass].constantize.new : [c[:klass].constantize.new] * 2
+          neww = singular ? c[:klass].constantize.new : [c[:klass].constantize.new] * 2
 
-            if singular
-              (assocs.present? && assocs) || neww
-            else
-              (assocs.map{|c| c}.present? && assocs.map{|c| c}) || neww
-            end
-          end
-
-          #ap "criando método #{c[:name]}_attributes="
-          self.class.send(:define_method, "#{c[:name]}_attributes=") do |attributes|
+          if singular
+            (assocs.present? && assocs) || neww
+          else
+            (assocs.map { |c| c }.present? && assocs.map { |c| c }) || neww
           end
         end
-      end
 
-      def set_non_fields_for_methods assoc_set
-        assoc_set.each do |c|
-          #ap "criando método #{c[:name]}_list"
-          self.class.send(:define_method, "#{c[:name]}_list") do
-            assoc = instance_variable_get("@#{get_main_model.to_s.underscore}")
-                    .send(c[:name])
-            assoc.present? && assoc.id || nil
-          end
+        # ap "creating method #{c[:name]}_attributes="
+        self.class.send(:define_method, "#{c[:name]}_attributes=") do |attributes|
         end
       end
+    end
 
-      def set_remove_accessor assoc_set
-        assoc_set.each do |c|
-          #ap "Criando attr_accessor :_remove para #{c[:klass]}"
-          c[:klass].constantize.class_eval{ attr_accessor :_remove }
+    def set_non_fields_for_methods(assoc_set)
+      assoc_set.each do |c|
+        # ap "creating method #{c[:name]}_list"
+        self.class.send(:define_method, "#{c[:name]}_list") do
+          assoc = instance_variable_get("@#{get_main_model.to_s.underscore}")
+                  .send(c[:name])
+          assoc.present? && assoc.id || nil
         end
       end
+    end
 
-      def map_associations assoc
-        assoc.inject([]) do |t, c| 
-          t << {
-            name: c.name.to_s, 
-            klass: c.klass.name,
-            # delete_if remove useless attrs
-            columns:       filter_columns(c.klass)
-          }
-        end
+    def set_remove_accessor(assoc_set)
+      assoc_set.each do |c|
+        # ap "creating attr_accessor :_remove para #{c[:klass]}"
+        c[:klass].constantize.class_eval { attr_accessor :_remove }
       end
+    end
 
-      def map_has_many_associations
-        # Create an array with associated classes names and attrs
-        @mapped_hm_assoc ||= map_associations(get_has_many_associations)
-        @mapped_hm_assoc
+    def map_associations(assoc)
+      assoc.inject([]) do |t, c|
+        t << {
+          name: c.name.to_s,
+          klass: c.klass.name,
+          # delete_if remove useless attrs
+          columns: filter_columns(c.klass)
+        }
       end
+    end
 
-      def map_belongs_to_associations
-        # Create an array with associated classes names and attrs
-        @mapped_bt_assoc ||= map_associations(get_belongs_to_associations)
-        @mapped_bt_assoc
-      end
+    def map_has_many_associations
+      # Create an array with associated classes names and attrs
+      @mapped_hm_assoc ||= map_associations(get_has_many_associations)
+      @mapped_hm_assoc
+    end
 
-      def map_has_one_associations
-        # Create an array with associated classes names and attrs
-        @mapped_ho_assoc ||= map_associations(get_has_one_associations)
-        @mapped_ho_assoc
-      end
+    def map_belongs_to_associations
+      # Create an array with associated classes names and attrs
+      @mapped_bt_assoc ||= map_associations(get_belongs_to_associations)
+      @mapped_bt_assoc
+    end
+
+    def map_has_one_associations
+      # Create an array with associated classes names and attrs
+      @mapped_ho_assoc ||= map_associations(get_has_one_associations)
+      @mapped_ho_assoc
+    end
   end
 end

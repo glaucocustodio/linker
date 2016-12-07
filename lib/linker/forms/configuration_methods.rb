@@ -1,9 +1,9 @@
 module Linker
   module ConfigurationMethods
     extend ActiveSupport::Concern
-    
+
     module ClassMethods
-      def main_model main_model
+      def main_model(main_model)
         @main_model = main_model.to_s.camelize
       end
 
@@ -19,6 +19,5 @@ module Linker
         include ActiveModel::Validations
       end
     end
-
   end
 end

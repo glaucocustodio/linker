@@ -3,12 +3,12 @@ require 'active_support/all'
 require 'linker/forms/attributes'
 require 'linker/forms/params'
 
-module Linker 
+module Linker
   extend ActiveSupport::Concern
   include Linker::Attributes
   include Linker::Params
 
-  def initialize main_model_instance = self.class._main_model.constantize.send(:new)
+  def initialize(main_model_instance = self.class._main_model.constantize.send(:new))
     # Creating instance variable for main model
     instance_variable_set("@#{main_model_instance.class.name.underscore}", main_model_instance)
 
