@@ -99,9 +99,9 @@ Finally, you can use `fields_for` in order to create/edit associated fields and 
 
 ## How it works
 
-Linker will map all `has_one`, `has_many` and `belongs_to` associations from main model and let it ready to use.
+Linker will create delegators for all attributes of main model and its associations (`has_one`, `has_many` and `belongs_to`) and let it ready to use.
 
-Internally, it will include `ActiveModel::Model` if on Rails 4 or `ActiveModel::Validations` if on Rails < 4.
+Internally, it will include `ActiveModel::Model` if on Rails 4+ or `ActiveModel::Validations` if on Rails < 4.
 
 It will also create `params=` and `save` methods responsible to set new objects and save them. You can override these methods to get a custom behavior without worrying with delegations.
 
@@ -140,6 +140,11 @@ class CarsForm
   end
 end
 ```
+
+## Roadmap
+- [ ] Add support to polymorphic associations (fields `_id` and `_type`)
+- [ ] Create delegators only for specified associations (not all as now). For ie: `main_model :car, only_associations: [:customer]`
+- [ ] Rename this gem? Maybe.
 
 ## Contributing
 
