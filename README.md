@@ -20,7 +20,7 @@ Or install it yourself as:
 
 ## Supported versions
 - Ruby 2.0+
-- Rails 3.1+ (including 4.x)
+- Rails 3.1+ (including 4 and 5)
 
 ## Usage
 
