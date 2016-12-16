@@ -46,9 +46,10 @@ module Linker
             end
           elsif param.match(/_list$/)
             assoc = param.gsub(/_list$/, '')
-            if r = search_has_one(assoc)
-              final = value.present? ? r[:klass].constantize.send(:find, value) : nil
-              _get_main_model.send("#{assoc}=", final)
+            if r = search_has_one(assoc) || r = search_has_and_belongs_to_many(assoc)
+              clean_value = value.is_a?(Array) ? value.reject(&:blank?) : value
+              final = clean_value.present? ? r[:klass].constantize.send(:find, clean_value) : nil
+              _get_main_model.send("#{assoc}=", final) if final.present?
             end
           else
             self.send("#{param}=", value)
@@ -97,7 +98,7 @@ module Linker
     private
 
     def _get_main_model
-      main_model ||= self.send(self.class._main_model.underscore)
+      @_get_main_model ||= self.send(self.class._main_model.underscore)
     end
 
     def search_has_one(name)
@@ -105,8 +106,13 @@ module Linker
       s.present? && s
     end
 
+    def search_has_and_belongs_to_many(name)
+      s = @mapped_habtm_assoc.bsearch { |c| c[:name] == name }
+      s.present? && s
+    end
+
     def search_has_many(name)
-      s = @mapped_hm_assoc.detect { |c| c[:name] == name }
+      s = @mapped_hm_assoc.bsearch { |c| c[:name] == name }
       s.present? && s
     end
   end

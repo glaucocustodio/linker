@@ -8,6 +8,12 @@ class CarsForm
 
   validates :name, presence: true
 
+  validate :car_parts_required
+
+  def car_parts_required
+    errors.add(:car_parts_list, "You must choose a car part") if car.car_parts.blank?
+  end
+
   def after_init
     self.name = 'default car name'
   end

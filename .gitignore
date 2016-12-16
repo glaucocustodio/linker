@@ -14,3 +14,5 @@ Gemfile.lock
 *.a
 mkmf.log
 *.gem
+.tags
+.tags_sorted_by_file

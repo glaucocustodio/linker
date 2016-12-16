@@ -19,6 +19,7 @@ module Linker
       set_fields_for_methods(map_belongs_to_associations, true)
       set_fields_for_methods(map_has_one_associations, true)
       set_non_fields_for_methods(map_has_one_associations)
+      set_non_fields_for_methods(map_has_and_belongs_to_many_associations)
       set_remove_accessor(map_has_many_associations)
     end
 
@@ -57,9 +58,13 @@ module Linker
       @bt_assoc ||= @main_model.reflect_on_all_associations(:belongs_to)
     end
 
+    def get_has_and_belongs_to_many_associations
+      @habtm_assoc ||= @main_model.reflect_on_all_associations(:has_and_belongs_to_many)
+    end
+
     def filter_columns(model)
       f = model.columns.map(&:name)
-                       .delete_if{ |cn| USELESS_COLUMNS_REGEX.match(cn) }
+                       .delete_if { |cn| USELESS_COLUMNS_REGEX.match(cn) }
       # Get Paperclip attachments
       begin
         f = Paperclip::AttachmentRegistry.names_for(model).inject(f) do |t, c|
@@ -104,7 +109,14 @@ module Linker
         self.class.send(:define_method, "#{c[:name]}_list") do
           assoc = instance_variable_get("@#{get_main_model.to_s.underscore}")
                   .send(c[:name])
-          assoc.present? && assoc.id || nil
+
+          if assoc.respond_to?(:ids)
+            assoc.ids
+          elsif assoc.present? && assoc.id
+            assoc.id
+          else
+            nil
+          end
         end
       end
     end
@@ -130,19 +142,21 @@ module Linker
     def map_has_many_associations
       # Create an array with associated classes names and attrs
       @mapped_hm_assoc ||= map_associations(get_has_many_associations)
-      @mapped_hm_assoc
     end
 
     def map_belongs_to_associations
       # Create an array with associated classes names and attrs
       @mapped_bt_assoc ||= map_associations(get_belongs_to_associations)
-      @mapped_bt_assoc
     end
 
     def map_has_one_associations
       # Create an array with associated classes names and attrs
       @mapped_ho_assoc ||= map_associations(get_has_one_associations)
-      @mapped_ho_assoc
+    end
+
+    def map_has_and_belongs_to_many_associations
+      # Create an array with associated classes names and attrs
+      @mapped_habtm_assoc ||= map_associations(get_has_and_belongs_to_many_associations)
     end
   end
 end

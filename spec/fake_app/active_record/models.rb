@@ -42,6 +42,10 @@ class Phone < ActiveRecord::Base
 end
 
 class Car < ActiveRecord::Base
+  has_and_belongs_to_many :car_parts
+end
+
+class CarPart < ActiveRecord::Base
 end
 
 #migrations
@@ -88,7 +92,7 @@ class CreateAllTables < ActiveRecord::Migration
       t.string :district
 
       t.references :user, index: true
-      
+
       t.timestamps
     end
 
@@ -96,7 +100,7 @@ class CreateAllTables < ActiveRecord::Migration
       t.string :name
 
       t.references :user, index: true
-      
+
       t.timestamps
     end
 
@@ -118,6 +122,16 @@ class CreateAllTables < ActiveRecord::Migration
       t.string :name
 
       t.timestamps
+    end
+
+    create_table :car_parts do |t|
+      t.string :name
+
+      t.timestamps
+    end
+
+    create_join_table :cars, :car_parts do |t|
+      t.index [:car_id, :car_part_id]
     end
 
   end

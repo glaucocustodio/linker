@@ -16,7 +16,7 @@ describe UsersForm do
 
   it { expect(users_form).to respond_to(:user) }
   subject(:user) { users_form.user }
-  it { expect(user).to be_an(User) }  
+  it { expect(user).to be_an(User) }
 
   it { expect(users_form).to respond_to(:params=) }
   it { expect(users_form).to respond_to(:save) }
@@ -75,30 +75,30 @@ describe UsersForm do
   it { expect(family).to be_an(Family) }
 
   context 'new' do
-    it { expect(user.persisted?).to eq(false) }  
-  
+    it { expect(user.persisted?).to eq(false) }
+
     it { expect(users_form.save).to eq(false) }
     it { expect(users_form).not_to be_valid }
     it do
       users_form.save
-      expect(users_form.errors.full_messages).to include("Name can't be blank") 
+      expect(users_form.errors.full_messages).to include("Name can't be blank")
     end
 
-    it { expect(dependent_users_sample.persisted?).to eq(false) }  
+    it { expect(dependent_users_sample.persisted?).to eq(false) }
 
-    it { expect(tasks_sample.persisted?).to eq(false) }  
+    it { expect(tasks_sample.persisted?).to eq(false) }
 
-    it { expect(address.persisted?).to eq(false) }  
+    it { expect(address.persisted?).to eq(false) }
 
     it { expect(profile_list).to eq(nil) }
 
     it { expect(my_phone_list).to eq(nil) }
 
-    it { expect(pet.persisted?).to eq(false) }  
+    it { expect(pet.persisted?).to eq(false) }
 
-    it { expect(company.persisted?).to eq(false) }  
+    it { expect(company.persisted?).to eq(false) }
 
-    it { expect(family.persisted?).to eq(false) }  
+    it { expect(family.persisted?).to eq(false) }
   end
 
   context 'create' do
@@ -129,7 +129,7 @@ describe UsersForm do
 
     it { expect(dependent_users_sample.persisted?).to eq(true) }
     it { expect(dependent_users_sample.name).to eq('') }
-    
+
     it { expect(profile_list).to eq(1) }
     it { expect(my_phone_list).to eq(2) }
 
@@ -197,14 +197,14 @@ describe UsersForm do
 
     it { expect(users_form_existing_user_user.persisted?).to eq(true)}
     it { expect(users_form_existing_user_user.name).to eq('Bar')}
-    
+
     it { expect(users_form_existing_user_company.persisted?).to be(true) }
     it { expect(users_form_existing_user_company.name).to eq('My Company') }
     it { expect(users_form_existing_user_company.website).to eq('mycompany.com') }
 
     it { expect(users_form_existing_user_family.persisted?).to be(true) }
     it { expect(users_form_existing_user_family.last_name).to eq('Milan') }
-    
+
     it { expect(users_form_existing_user.profile_list).to be(nil) }
     it { expect(users_form_existing_user.my_phone_list).to be(nil) }
 
