@@ -45,7 +45,7 @@ module Linker
               end
             end
           elsif param.match(/_list$/)
-            assoc = param.gsub(/_list$/, '')
+            assoc = param.to_s.gsub(/_list$/, '')
             if r = search_has_one(assoc) || r = search_has_and_belongs_to_many(assoc)
               clean_value = value.is_a?(Array) ? value.reject(&:blank?) : value
               final = clean_value.present? ? r[:klass].constantize.send(:find, clean_value) : nil
