@@ -8,17 +8,13 @@ class CarsForm
 
   validates :name, presence: true
 
-  validate :car_parts_required
-
-  def car_parts_required
-    errors.add(:car_parts_list, "You must choose a car part") if car.car_parts.blank?
-  end
+  validates :car_parts_list, presence: true
 
   def after_init
     self.name = 'default car name'
   end
 
-  def before_set_params params
+  def before_set_params(params)
     params['name'] = "#{params['name']} 2000"
   end
 

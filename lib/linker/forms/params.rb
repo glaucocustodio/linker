@@ -48,6 +48,8 @@ module Linker
             assoc = param.to_s.gsub(/_list$/, '')
             if r = search_has_one(assoc) || r = search_has_and_belongs_to_many(assoc)
               clean_value = value.is_a?(Array) ? value.reject(&:blank?) : value
+              # fill attr_accessor
+              self.send("#{param}=", clean_value)
               final = clean_value.present? ? r[:klass].constantize.send(:find, clean_value) : nil
               _get_main_model.send("#{assoc}=", final) if final.present?
             end
@@ -107,12 +109,12 @@ module Linker
     end
 
     def search_has_and_belongs_to_many(name)
-      s = @mapped_habtm_assoc.bsearch { |c| c[:name] == name }
+      s = @mapped_habtm_assoc.detect { |c| c[:name] == name }
       s.present? && s
     end
 
     def search_has_many(name)
-      s = @mapped_hm_assoc.bsearch { |c| c[:name] == name }
+      s = @mapped_hm_assoc.detect { |c| c[:name] == name }
       s.present? && s
     end
   end

@@ -130,8 +130,8 @@ describe UsersForm do
     it { expect(dependent_users_sample.persisted?).to eq(true) }
     it { expect(dependent_users_sample.name).to eq('') }
 
-    it { expect(profile_list).to eq(1) }
-    it { expect(my_phone_list).to eq(2) }
+    it { expect(profile_list).to eq('1') }
+    it { expect(my_phone_list).to eq('2') }
 
     it { expect(pet).to be_a(Pet)}
     it { expect(pet.persisted?).to be(true)}
@@ -205,8 +205,8 @@ describe UsersForm do
     it { expect(users_form_existing_user_family.persisted?).to be(true) }
     it { expect(users_form_existing_user_family.last_name).to eq('Milan') }
 
-    it { expect(users_form_existing_user.profile_list).to be(nil) }
-    it { expect(users_form_existing_user.my_phone_list).to be(nil) }
+    it { expect(users_form_existing_user.profile_list).to eq('') }
+    it { expect(users_form_existing_user.my_phone_list).to eq('') }
 
     it { expect(users_form_existing_user_pet).to be_a(Pet) }
     it { expect(users_form_existing_user_pet.persisted?).to be(true) }

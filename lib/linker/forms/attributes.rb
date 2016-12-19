@@ -18,8 +18,8 @@ module Linker
       set_fields_for_methods(map_has_many_associations)
       set_fields_for_methods(map_belongs_to_associations, true)
       set_fields_for_methods(map_has_one_associations, true)
-      set_non_fields_for_methods(map_has_one_associations)
-      set_non_fields_for_methods(map_has_and_belongs_to_many_associations)
+      create_list_accessors_for(map_has_one_associations)
+      create_list_accessors_for(map_has_and_belongs_to_many_associations)
       set_remove_accessor(map_has_many_associations)
     end
 
@@ -103,21 +103,9 @@ module Linker
       end
     end
 
-    def set_non_fields_for_methods(assoc_set)
+    def create_list_accessors_for(assoc_set)
       assoc_set.each do |c|
-        # ap "creating method #{c[:name]}_list"
-        self.class.send(:define_method, "#{c[:name]}_list") do
-          assoc = instance_variable_get("@#{get_main_model.to_s.underscore}")
-                  .send(c[:name])
-
-          if assoc.respond_to?(:ids)
-            assoc.ids
-          elsif assoc.present? && assoc.id
-            assoc.id
-          else
-            nil
-          end
-        end
+        self.class.__send__(:attr_accessor, "#{c[:name]}_list")
       end
     end
 
