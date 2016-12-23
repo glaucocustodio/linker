@@ -21,7 +21,11 @@ describe CarsForm do
     end
 
     it { expect(cars_form.car.name).to eq('Uno 2000') }
-    it { expect(cars_form.car.car_parts.ids).to eq([1,2]) }
+    if Rails.version.start_with?("3")
+      it { expect(cars_form.car.car_parts.map(&:id)).to eq([1,2]) }
+    else
+      it { expect(cars_form.car.car_parts.ids).to eq([1,2]) }
+    end
     it { expect(cars_form.before_save_checked).to eq(true) }
     it { expect(cars_form.after_save_checked).to eq(true) }
   end
@@ -36,7 +40,11 @@ describe CarsForm do
     end
 
     it { expect(cars_form.car.name).to eq('Uno 2000') }
-    it { expect(cars_form.car.car_parts.ids).to eq([]) }
+    if Rails.version.start_with?("3")
+      it { expect(cars_form.car.car_parts.map(&:id)).to eq([]) }
+    else
+      it { expect(cars_form.car.car_parts.ids).to eq([]) }
+    end
     it { expect(cars_form.errors.messages).to include(:car_parts_list) }
   end
 end
