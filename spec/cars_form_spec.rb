@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe CarsForm do
-  let(:cars_form) { CarsForm.new(Car.new) }
+  let(:cars_form) { described_class.new(Car.new) }
   let!(:car_part1) { CarPart.create(name: "Part 1") }
   let!(:car_part2) { CarPart.create(name: "Part 2") }
 

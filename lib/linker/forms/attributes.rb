@@ -36,6 +36,7 @@ module Linker
 
       [map_has_one_associations, map_belongs_to_associations].each do |rgroup|
         rgroup.each do |c|
+          return unless c[:columns]
           c[:columns].each do |cc|
             # ap "delegating #{cc} and #{cc}= for #{c[:name]}__#{cc}"
             self.class.__send__(:delegate, cc, "#{cc}=", to: c[:name].underscore.to_sym, prefix: "#{c[:name]}_")
@@ -120,10 +121,12 @@ module Linker
       assoc.inject([]) do |t, c|
         t << {
           name: c.name.to_s,
-          klass: c.klass.name,
-          # delete_if remove useless attrs
-          columns: filter_columns(c.klass)
         }
+        unless c.options[:polymorphic]
+          t.last[:columns] = filter_columns(c.klass)
+          t.last[:klass] = c.klass.name
+        end
+        t
       end
     end
 

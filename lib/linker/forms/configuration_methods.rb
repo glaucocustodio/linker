@@ -8,7 +8,7 @@ module Linker
       end
 
       def _main_model
-        @main_model
+        @main_model ||= self.name.split("Form").first
       end
     end
 

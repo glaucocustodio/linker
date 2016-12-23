@@ -18,6 +18,7 @@ require_relative 'active_record/models'
 require_relative 'forms/dependent_user_form'
 require_relative 'forms/users_form'
 require_relative 'forms/cars_form'
+require_relative 'forms/issue_form'
 # controllers
 # class ApplicationController < ActionController::Base; end
 

@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
 
   has_one :address, dependent: :destroy
   has_one :profile
-  
+
   has_many :dependent_users, dependent: :destroy
   has_many :tasks, dependent: :destroy
 end
@@ -42,10 +42,11 @@ Create a form class through `rails g form whatever` or manually (it should inclu
 ```ruby
 class UserForm
   include Linker
-  
-  main_model User # or :user or 'User'
 
-  # Use relationship's name followed by "__" plus attribute's name 
+  # we infer the main model through the form's class name, but you can set manually like:
+  main_model User # or :user or 'User' ====> this line is optional
+
+  # Use relationship's name followed by "__" plus attribute's name
   # to validate has_one and belongs_to associations
   validates :name, :address__street, :company__name, presence: true
 end
@@ -82,7 +83,7 @@ Finally, you can use `fields_for` in order to create/edit associated fields and 
 ```erb
 <%= form_for @user_form do |f| %>
   <%= f.text_field :name %>
-  
+
   <%= f.fields_for :tasks do |ta| %>
     <%= ta.hidden_field :id %>
     <%= ta.text_field :name %>
@@ -99,7 +100,7 @@ Finally, you can use `fields_for` in order to create/edit associated fields and 
 
 ## How it works
 
-Linker will create delegators for all attributes of main model and its associations (`has_one`, `has_many` and `belongs_to`) and let it ready to use.
+Linker will create delegators for all attributes of main model and its associations (`has_one`, `has_many` and `belongs_to`, except for polymorphic ones) and let it ready to use.
 
 Internally, it will include `ActiveModel::Model` if on Rails 4+ or `ActiveModel::Validations` if on Rails < 4.
 
@@ -123,11 +124,9 @@ class CarsForm
   include Linker
   attr_accessor :before_save_checked
 
-  main_model :car
-
   validates :name, presence: true
 
-  def before_set_params params
+  def before_set_params(params)
     params['name'] = "#{params['name']} 2000"
   end
 
@@ -142,7 +141,6 @@ end
 ```
 
 ## Roadmap
-- [ ] Add support to polymorphic associations (fields `_id` and `_type`)
 - [ ] Create delegators only for specified associations (not all as now). For ie: `main_model :car, only_associations: [:customer]`
 - [ ] Rename this gem? Maybe.
 

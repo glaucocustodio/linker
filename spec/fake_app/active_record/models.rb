@@ -10,6 +10,8 @@ class User < ActiveRecord::Base
   has_many :dependent_users, dependent: :destroy
   has_many :my_tasks, dependent: :destroy, class_name: 'Task'
 
+  has_many :issues, as: :owner
+
   #has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "100x100>" }, :default_url => "/images/:style/missing.png"
   #validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
 end
@@ -18,6 +20,10 @@ class Address < ActiveRecord::Base
 end
 
 class Pet < ActiveRecord::Base
+end
+
+class Issue < ActiveRecord::Base
+  belongs_to :owner, polymorphic: true
 end
 
 class Company < ActiveRecord::Base
@@ -132,6 +138,12 @@ class CreateAllTables < ActiveRecord::Migration
 
     create_join_table :cars, :car_parts do |t|
       t.index [:car_id, :car_part_id]
+    end
+
+    create_table :issues do |t|
+      t.string :name
+      t.integer :owner_id
+      t.string :owner_type
     end
 
   end
