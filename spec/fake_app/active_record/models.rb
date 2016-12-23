@@ -136,7 +136,10 @@ class CreateAllTables < ActiveRecord::Migration
       t.timestamps
     end
 
-    create_join_table :cars, :car_parts do |t|
+    # join table
+    create_table :car_parts_cars, id: false do |t|
+      t.integer :car_id
+      t.integer :car_part_id
       t.index [:car_id, :car_part_id]
     end
 
