@@ -140,8 +140,8 @@ class CreateAllTables < ActiveRecord::Migration
     create_table :car_parts_cars, id: false do |t|
       t.integer :car_id
       t.integer :car_part_id
-      t.index [:car_id, :car_part_id]
     end
+    add_index :car_parts_cars, [:car_id, :car_part_id]
 
     create_table :issues do |t|
       t.string :name
